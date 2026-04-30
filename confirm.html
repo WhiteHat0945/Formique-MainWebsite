@@ -175,6 +175,110 @@
             document.getElementById('errorState').style.display = 'block';
             document.getElementById('errorMsg').innerText = message;
         }
+    </script><!-- Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Use your actual Supabase credentials here
+        const supabaseUrl = 'https://mckfmkzcrpwnypxgqsuj.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ja2Zta3pjcnB3bnlweGdxc3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTUyOTYsImV4cCI6MjA5MjA3MTI5Nn0.pRc3Bf8pPu3JDIkMdXjbILVUHYn7Z34OqRxjnnjxigE'; 
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentOrder = null;
+        let orderId = null;
+
+        // 1. On page load, extract the order ID
+        window.onload = async () => {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                orderId = urlParams.get('order');
+
+                if (!orderId || orderId === 'undefined') {
+                    showError("No valid order ID provided in the link. Please check your email link again.");
+                    return;
+                }
+
+                // 2. Fetch the order
+                const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).single();
+
+                if (error) {
+                    console.error("Supabase Error:", error);
+                    showError("Database error: " + error.message);
+                    return;
+                }
+                
+                if (!data) {
+                    showError("We couldn't locate this order in our system.");
+                    return;
+                }
+
+                if (data.status !== 'pending_email_confirmation') {
+                    showError("This order has already been verified or cancelled.");
+                    return;
+                }
+
+                // 3. Display the details
+                currentOrder = data;
+                document.getElementById('pMethod').innerText = data.payment_method.toUpperCase();
+                document.getElementById('pTotal').innerText = `₱${parseFloat(data.total_price).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('actionState').style.display = 'block';
+
+            } catch (err) {
+                console.error("Fatal Error:", err);
+                showError("A critical script error occurred: " + err.message);
+            }
+        };
+
+        // 4. Final confirmation and stock deduction
+        async function finalizeOrder() {
+            const btn = document.getElementById('confirmBtn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                // A. Update Order status to 'Pending'
+                const { error: updateError } = await supabase.from('orders').update({ status: 'Pending' }).eq('id', orderId);
+                
+                if (updateError) {
+                    throw new Error("Could not update order status: " + updateError.message);
+                }
+
+                // B. Safely deduct stock
+                if (currentOrder.items && Array.isArray(currentOrder.items)) {
+                    for (const item of currentOrder.items) {
+                        if (item.id) {
+                            const { data: prodData, error: prodError } = await supabase.from('products').select('stock').eq('id', item.id).single();
+                            
+                            if (prodData && !prodError) {
+                                const currentStock = parseInt(prodData.stock) || 0;
+                                const qty = parseInt(item.qty) || 1;
+                                const newStock = Math.max(0, currentStock - qty);
+                                
+                                await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
+                            }
+                        }
+                    }
+                }
+
+                // C. Show success screen
+                document.getElementById('actionState').style.display = 'none';
+                document.getElementById('successState').style.display = 'block';
+
+            } catch (err) {
+                console.error("Finalization Error:", err);
+                alert("Error: " + err.message);
+                btn.innerText = "I Have Sent The Payment";
+                btn.disabled = false;
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('actionState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMsg').innerText = message;
+        }
     </script>
 </body>
 </html>
