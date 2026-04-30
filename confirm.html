@@ -92,7 +92,9 @@
         // Use your actual Supabase credentials here
         const supabaseUrl = 'https://mckfmkzcrpwnypxgqsuj.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ja2Zta3pjcnB3bnlweGdxc3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTUyOTYsImV4cCI6MjA5MjA3MTI5Nn0.pRc3Bf8pPu3JDIkMdXjbILVUHYn7Z34OqRxjnnjxigE'; 
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        // FIX: Renamed variable to 'supabaseClient' to avoid CDN clash
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         let currentOrder = null;
         let orderId = null;
@@ -108,8 +110,8 @@
                     return;
                 }
 
-                // 2. Fetch the order
-                const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).single();
+                // 2. Fetch the order using supabaseClient
+                const { data, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
 
                 if (error) {
                     console.error("Supabase Error:", error);
@@ -148,8 +150,8 @@
             btn.disabled = true;
 
             try {
-                // A. Update Order status to 'Pending'
-                const { error: updateError } = await supabase.from('orders').update({ status: 'Pending' }).eq('id', orderId);
+                // A. Update Order status to 'Pending' using supabaseClient
+                const { error: updateError } = await supabaseClient.from('orders').update({ status: 'Pending' }).eq('id', orderId);
                 
                 if (updateError) {
                     throw new Error("Could not update order status: " + updateError.message);
@@ -159,14 +161,14 @@
                 if (currentOrder.items && Array.isArray(currentOrder.items)) {
                     for (const item of currentOrder.items) {
                         if (item.id) {
-                            const { data: prodData, error: prodError } = await supabase.from('products').select('stock').eq('id', item.id).single();
+                            const { data: prodData, error: prodError } = await supabaseClient.from('products').select('stock').eq('id', item.id).single();
                             
                             if (prodData && !prodError) {
                                 const currentStock = parseInt(prodData.stock) || 0;
                                 const qty = parseInt(item.qty) || 1;
                                 const newStock = Math.max(0, currentStock - qty);
                                 
-                                await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
+                                await supabaseClient.from('products').update({ stock: newStock }).eq('id', item.id);
                             }
                         }
                     }
