@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     const brevoPayload = {
         sender: { 
             name: "Formique Official", 
-            email: "YOUR_VERIFIED_BREVO_EMAIL@domain.com" // IMPORTANT: Replace with your verified Brevo email
+            email: "formiquestore@gmail.com" // IMPORTANT: Replace with your verified Brevo email
         },
         to: [{ email: to_email, name: to_name }],
         subject: `Action Required: Confirm Your Formique Order (${order_id})`,
