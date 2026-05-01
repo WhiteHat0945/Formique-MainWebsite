@@ -15,33 +15,106 @@
             --accent-text: #ffffff;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f9f9f9; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; -webkit-font-smoothing: antialiased; }
         
-        .logo { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 2rem; color: var(--text); text-decoration: none; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 2rem; 
+            -webkit-font-smoothing: antialiased; 
+            
+            /* Soft hue animated background */
+            background: linear-gradient(-45deg, #fdfbfb, #e2ebf0, #fdfbfb, #f3e7e9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         
-        .confirmation-card { background: #fff; width: 100%; max-width: 600px; padding: 4rem; border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,0.05); text-align: center; }
+        .logo { 
+            font-family: 'Playfair Display', serif; 
+            font-size: 2.2rem; 
+            font-weight: 500; 
+            letter-spacing: -0.5px; 
+            margin-bottom: 2rem; 
+            color: var(--text); 
+            text-decoration: none; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .confirmation-card { 
+            background: #fff; 
+            width: 100%; 
+            max-width: 600px; 
+            padding: 4rem; 
+            border: 1px solid var(--border); 
+            border-radius: 16px; /* Added subtle curve */
+            box-shadow: 0 30px 60px rgba(0,0,0,0.08); 
+            text-align: center; 
+            
+            /* Entry animation */
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 500; margin-bottom: 1rem; letter-spacing: -1px; }
         p { color: var(--muted); line-height: 1.8; margin-bottom: 2rem; font-size: 0.95rem; }
         
-        .payment-box { background: #fafafa; border: 1px solid var(--border); padding: 2rem; text-align: left; margin-bottom: 2.5rem; }
+        .payment-box { background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 2rem; text-align: left; margin-bottom: 2.5rem; }
         .payment-box h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 1.5rem; font-weight: 600; }
         .payment-detail { display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
         .payment-detail:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
         
-        .btn-primary { background: var(--accent); color: var(--accent-text); padding: 1.2rem 2.5rem; border: none; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: background 0.3s; width: 100%; font-size: 0.85rem; }
-        .btn-primary:hover { background: #333; }
-        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: var(--accent-text); padding: 1.2rem 2.5rem; border: none; border-radius: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer; transition: transform 0.2s, background 0.3s; width: 100%; font-size: 0.85rem; }
+        .btn-primary:hover { background: #333; transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #000; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         #successState { display: none; }
+
+        /* Mobile Responsiveness Rules */
+        @media (max-width: 600px) {
+            body { 
+                padding: 1rem; 
+            }
+            .logo { 
+                font-size: 1.8rem; 
+                margin-bottom: 1.5rem; 
+            }
+            .confirmation-card { 
+                padding: 2.5rem 1.5rem; 
+            }
+            h1 { 
+                font-size: 2rem; 
+            }
+            .payment-box { 
+                padding: 1.5rem 1.2rem; 
+            }
+            .payment-detail { 
+                flex-direction: column; 
+                gap: 0.4rem; 
+            }
+        }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="logo">Formique</a>
+    <a href="storeeee.html" class="logo">Formique</a>
 
     <div class="confirmation-card" id="mainCard">
         <div id="loadingState">
@@ -65,7 +138,7 @@
                 </div>
                 <div class="payment-detail" style="flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
                     <strong style="color: var(--text);">Send Payment To:</strong>
-                    <span style="font-family: monospace; font-size: 1.1rem; letter-spacing: 1px;">0956-356-5700 (Jarek M.)</span>
+                    <span style="font-family: monospace; font-size: 1.1rem; letter-spacing: 1px;">0917-123-4567 (Jarek M.)</span>
                 </div>
             </div>
 
@@ -76,13 +149,13 @@
             <svg viewBox="0 0 24 24" style="width: 60px; height: 60px; stroke: #27ae60; fill: none; stroke-width: 1.5; margin-bottom: 1.5rem;"><polyline points="20 6 9 17 4 12"></polyline></svg>
             <h1>Order Confirmed</h1>
             <p>Thank you. Your order has been successfully moved to verification. Our administrative team will verify your transfer and update your shipping status shortly.</p>
-            <button class="btn-primary" style="background: #fff; color: #000; border: 1px solid #ddd; margin-top: 1rem;" onclick="window.location.href='index.html'">Return to Store</button>
+            <button class="btn-primary" style="background: #fff; color: #000; border: 1px solid #ddd; margin-top: 1rem;" onclick="window.location.href='storeeee.html'">Return to Store</button>
         </div>
         
         <div id="errorState" style="display: none;">
             <h1 style="font-size: 2rem;">Link Invalid</h1>
             <p id="errorMsg">This verification link has expired, is invalid, or the order has already been processed.</p>
-            <button class="btn-primary" onclick="window.location.href='index.html'">Return to Store</button>
+            <button class="btn-primary" onclick="window.location.href='storeeee.html'">Return to Store</button>
         </div>
     </div>
 
@@ -92,9 +165,7 @@
         // Use your actual Supabase credentials here
         const supabaseUrl = 'https://mckfmkzcrpwnypxgqsuj.supabase.co'; 
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ja2Zta3pjcnB3bnlweGdxc3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTUyOTYsImV4cCI6MjA5MjA3MTI5Nn0.pRc3Bf8pPu3JDIkMdXjbILVUHYn7Z34OqRxjnnjxigE'; 
-        
-        // FIX: Renamed variable to 'supabaseClient' to avoid CDN clash
-        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         let currentOrder = null;
         let orderId = null;
@@ -110,8 +181,8 @@
                     return;
                 }
 
-                // 2. Fetch the order using supabaseClient
-                const { data, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+                // 2. Fetch the order
+                const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).single();
 
                 if (error) {
                     console.error("Supabase Error:", error);
@@ -150,8 +221,8 @@
             btn.disabled = true;
 
             try {
-                // A. Update Order status to 'Pending' using supabaseClient
-                const { error: updateError } = await supabaseClient.from('orders').update({ status: 'Pending' }).eq('id', orderId);
+                // A. Update Order status to 'Pending'
+                const { error: updateError } = await supabase.from('orders').update({ status: 'Pending' }).eq('id', orderId);
                 
                 if (updateError) {
                     throw new Error("Could not update order status: " + updateError.message);
@@ -161,14 +232,14 @@
                 if (currentOrder.items && Array.isArray(currentOrder.items)) {
                     for (const item of currentOrder.items) {
                         if (item.id) {
-                            const { data: prodData, error: prodError } = await supabaseClient.from('products').select('stock').eq('id', item.id).single();
+                            const { data: prodData, error: prodError } = await supabase.from('products').select('stock').eq('id', item.id).single();
                             
                             if (prodData && !prodError) {
                                 const currentStock = parseInt(prodData.stock) || 0;
                                 const qty = parseInt(item.qty) || 1;
                                 const newStock = Math.max(0, currentStock - qty);
                                 
-                                await supabaseClient.from('products').update({ stock: newStock }).eq('id', item.id);
+                                await supabase.from('products').update({ stock: newStock }).eq('id', item.id);
                             }
                         }
                     }
