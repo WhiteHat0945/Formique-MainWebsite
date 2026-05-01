@@ -535,6 +535,13 @@
         </div>
         <div id="wishlistItems" class="bag-items"></div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+    (function() {
+        emailjs.init("VEwg2WPiw2pu1ZROf"); 
+    })();
+    </script>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
@@ -1173,6 +1180,7 @@
         };
 
         try {
+<<<<<<< HEAD
             // Call your new secure Vercel backend
             const emailResponse = await fetch('/api/send-order-email', {
                 method: 'POST',
@@ -1183,6 +1191,14 @@
             if (!emailResponse.ok) throw new Error("Backend failed to send email");
 
             // Success UI
+=======
+            await emailjs.send(
+                'service_xrn6m1o',   
+                'template_7w273js',  
+                templateParams
+            );
+
+>>>>>>> 65f8d2a6031ab9874a014f1816959e98aff3af61
             document.getElementById('checkoutContent').innerHTML = `
                 <div class="checkout-container" style="text-align: center; padding: 4rem 0;">
                     <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem;">Action Required</h2>
@@ -1198,8 +1214,13 @@
             updateBagUI();
 
         } catch (emailError) {
+<<<<<<< HEAD
             console.error("Serverless Email Error:", emailError);
             alert("Order saved, but we couldn't send the confirmation email. Please contact support.");
+=======
+            console.error("EmailJS Error Detailed:", emailError);
+            alert("Order saved, but we couldn't send the confirmation email...");
+>>>>>>> 65f8d2a6031ab9874a014f1816959e98aff3af61
         }
 
         } else {
