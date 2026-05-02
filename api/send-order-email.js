@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         sender: { 
           name: "Formique Official", 
-          email: "formiquestore@gmail.com" // <--- CHANGE THIS
+          email: "formiquestore@gmail.com" 
         },
         to: [{ email: to_email, name: to_name }],
         subject: `Confirm Your Formique Order #${order_id}`,
@@ -27,60 +27,62 @@ export default async function handler(req, res) {
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <!-- Import Store Fonts for supported mail clients -->
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
           </head>
-          <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f5; padding: 40px 20px;">
+          <body style="margin: 0; padding: 0; background-color: #fafafa; -webkit-font-smoothing: antialiased;">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fafafa; padding: 60px 20px;">
               <tr>
                 <td align="center">
-                  <!-- Main Card Container -->
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+                  <!-- Main Minimalist Container -->
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border: 1px solid #eeeeee;">
                     
-                    <!-- Header -->
+                    <!-- Header / Logo -->
                     <tr>
-                      <td align="center" style="padding: 40px 20px 20px; text-align: center;">
-                        <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px; color: #111827; text-transform: uppercase;">Formique</h1>
+                      <td align="center" style="padding: 50px 40px 30px; border-bottom: 1px solid #eeeeee;">
+                        <h1 style="margin: 0; font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; letter-spacing: 1px; color: #000000;">Formique</h1>
                       </td>
                     </tr>
                     
                     <!-- Body Content -->
                     <tr>
-                      <td style="padding: 20px 40px 30px;">
-                        <p style="margin: 0 0 20px; font-size: 16px; color: #4b5563; line-height: 1.6;">Hello ${to_name},</p>
-                        <p style="margin: 0 0 30px; font-size: 16px; color: #4b5563; line-height: 1.6;">Thank you for your purchase! We are getting your order ready. To finalize your transaction and proceed to shipping, please verify your order details below.</p>
+                      <td style="padding: 50px 40px 40px;">
+                        <p style="margin: 0 0 24px; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; color: #1a1a1a; line-height: 1.8; letter-spacing: 0.5px;">Dear ${to_name},</p>
+                        <p style="margin: 0 0 40px; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; color: #1a1a1a; line-height: 1.8; letter-spacing: 0.5px;">Thank you for your refined selection. Your order has been securely received and is currently being prepared. To finalize your transaction and initiate dispatch, please confirm your order details below.</p>
 
-                        <!-- Order Details Box -->
-                        <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
-                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                            <tr>
-                              <td style="padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                                <p style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280;">Order Number</p>
-                                <p style="margin: 4px 0 0; font-size: 18px; font-weight: 600; color: #111827;">#${order_id}</p>
-                              </td>
-                              <td align="right" style="padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
-                                <p style="margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280;">Total Amount</p>
-                                <p style="margin: 4px 0 0; font-size: 18px; font-weight: 600; color: #111827;">${order_total}</p>
-                              </td>
-                            </tr>
-                          </table>
-                        </div>
-
-                        <!-- Call to Action Button -->
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <!-- Sleek Order Details -->
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 40px; border-top: 1px solid #eeeeee; border-bottom: 1px solid #eeeeee;">
                           <tr>
-                            <td align="center">
-                              <a href="${confirmation_link}" style="display: inline-block; padding: 16px 36px; background-color: #111827; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 8px; text-align: center; transition: background-color 0.2s;">Verify My Order</a>
+                            <td style="padding: 24px 0;">
+                              <p style="margin: 0 0 8px; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #757575;">Order Number</p>
+                              <p style="margin: 0; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #000000;">#${order_id}</p>
+                            </td>
+                            <td align="right" style="padding: 24px 0;">
+                              <p style="margin: 0 0 8px; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #757575;">Total Amount</p>
+                              <p style="margin: 0; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #000000;">${order_total}</p>
                             </td>
                           </tr>
                         </table>
 
-                        <p style="margin: 32px 0 0; font-size: 14px; color: #9ca3af; text-align: center; line-height: 1.5;">If you didn't make this purchase, you can safely ignore this email.</p>
+                        <!-- CTA Button -->
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                            <td align="center">
+                              <a href="${confirmation_link}" style="display: inline-block; padding: 18px 45px; background-color: #000000; color: #ffffff; text-decoration: none; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;">Verify Order</a>
+                            </td>
+                          </tr>
+                        </table>
+
                       </td>
                     </tr>
                     
                     <!-- Footer -->
                     <tr>
-                      <td style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-                        <p style="margin: 0; font-size: 12px; color: #9ca3af;">&copy; ${new Date().getFullYear()} Formique. All rights reserved.</p>
+                      <td style="padding: 20px 40px 50px; text-align: center; background-color: #ffffff;">
+                        <p style="margin: 0; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 10px; font-weight: 300; color: #757575; letter-spacing: 1px; line-height: 1.8; text-transform: uppercase;">
+                          If you did not initiate this transaction, please disregard this email.<br><br>
+                          &copy; ${new Date().getFullYear()} Formique Official Store.<br>All rights reserved.
+                        </p>
                       </td>
                     </tr>
 
