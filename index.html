@@ -78,6 +78,12 @@
         .bestseller-name { font-size: 0.95rem; font-weight: 500; color: var(--text); line-height: 1.3; }
         .bestseller-cat { font-size: 0.75rem; color: var(--muted); text-transform: capitalize; }
         .bestseller-price { font-size: 0.95rem; font-weight: 500; color: var(--text); white-space: nowrap; }
+        
+        /* OUT OF STOCK STYLING */
+        .out-of-stock-card { pointer-events: none; }
+        .out-of-stock-card .bestseller-image img { filter: grayscale(100%); opacity: 0.6; }
+        .out-of-stock-card .bestseller-info { opacity: 0.6; }
+        .out-of-stock-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); padding: 0.8rem 1.5rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text); z-index: 15; text-align: center; width: 80%; }
 
         .btn-like { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; z-index: 10; backdrop-filter: blur(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn-like:hover { transform: scale(1.1); background: #fff; }
@@ -328,7 +334,7 @@
 
     <nav id="navbar">
         <div class="nav-left">
-            <span class="nav-item" onclick="scrollToShop()">Shop</span>
+            <a href="shop.html" class="nav-item" style="text-decoration: none; color: inherit;">Shop</a>
             <div class="nav-item-wrap">
                 <span class="nav-item" onclick="toggleMegaMenu(event)">Collections</span>
             </div>
@@ -373,10 +379,10 @@
 
     <!-- Mobile Bottom Navigation (Hidden on Hero) -->
     <div class="mobile-bottom-nav">
-        <div class="m-nav-item active" onclick="scrollToShop()">
+        <a href="shop.html" class="m-nav-item active" style="text-decoration: none;">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Shop</span>
-        </div>
+        </a>
         <div class="m-nav-item" onclick="toggleMegaMenu(event)">
             <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             <span>Collection</span>
@@ -535,13 +541,6 @@
         </div>
         <div id="wishlistItems" class="bag-items"></div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
-    (function() {
-        emailjs.init("VEwg2WPiw2pu1ZROf"); 
-    })();
-    </script>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
@@ -850,6 +849,8 @@
             grid.innerHTML = selected.map(p => {
                 const originalIndex = productsList.findIndex(item => item.id === p.id);
                 const isLiked = wishlist.some(id => String(id) === String(p.id)) ? 'liked' : '';
+                const stockVal = String(p.stock).toLowerCase().trim();
+                const isOutOfStock = stockVal === '0' || stockVal === 'out of stock' || stockVal === 'none';
                 return `
                 <div class="bestseller-card" onclick="openProduct(${originalIndex})">
                     <div class="bestseller-image">
@@ -884,6 +885,8 @@
                     const originalIndex = productsList.findIndex(item => item.id === p.id);
                     const isLiked = wishlist.some(id => String(id) === String(p.id)) ? 'liked' : '';
                     const badgeHtml = isBestSeller ? `<span class="product-badge">Best Seller</span>` : '';
+                    const stockVal = String(p.stock).toLowerCase().trim();
+                    const isOutOfStock = stockVal === '0' || stockVal === 'out of stock' || stockVal === 'none';
                     return `
                     <div class="bestseller-card" onclick="openProduct(${originalIndex})">
                         <div class="bestseller-image">
