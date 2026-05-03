@@ -319,6 +319,19 @@
             .bag-header h3 { font-size: 0.9rem; }
             
             .footer-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+            /* Fix footer bottom text collision */
+            .footer-bottom {
+                align-items: flex-start; /* Aligns the icons nicely with the top line of text */
+            }
+            .footer-bottom span {
+                max-width: 100%; /* Forces the second half of the sentence to wrap right under */
+                line-height: 1.6;
+            }
+            .footer-bottom {
+            flex-direction: column-reverse; /* Stacks icons on top, text on bottom */
+            align-items: flex-start;
+            gap: 1.5rem;
+            }
         }
         
         @media (max-width: 600px) { 
