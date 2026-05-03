@@ -177,10 +177,10 @@
         .footer-col ul li a:hover { color: #fff; }
         .newsletter-wrap { display: flex; flex-direction: column; gap: 1.5rem; }
         .newsletter-desc { color: #a0a0a0; font-size: 0.85rem; line-height: 1.6; font-weight: 300; }
-        .newsletter-form { display: flex; width: 100%; border-bottom: 1px solid #555; padding-bottom: 0.5rem; transition: border-color 0.3s; align-items: flex-end; }
+        .newsletter-form { display: flex; width: 100%; border-bottom: 1px solid #555; padding-bottom: 0.8rem; transition: border-color 0.3s; align-items: center; justify-content: space-between; }
         .newsletter-form:focus-within { border-color: #fff; }
-        .newsletter-input { flex-grow: 1; background-color: transparent !important; border: none; padding: 0; margin: 0; font-family: inherit; font-size: 0.85rem; color: #ffffff !important; outline: none !important; line-height: 1; }
-        .newsletter-submit { background: transparent; border: none; color: #fff; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; padding: 0 0 0 1rem; margin: 0; transition: opacity 0.3s; text-transform: uppercase; }
+        .newsletter-input { flex-grow: 1; background-color: transparent !important; border: none; padding: 0; margin: 0; font-family: inherit; font-size: 0.85rem; color: #ffffff !important; outline: none !important; line-height: 1.5; color-scheme: dark; }
+        .newsletter-submit { background: transparent; border: none; color: #fff; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; padding: 0 0 0 1rem; margin: 0; transition: opacity 0.3s; text-transform: uppercase; line-height: 1.5; white-space: nowrap; }
         .footer-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; padding-top: 2rem; color: #a0a0a0; font-size: 0.8rem; font-weight: 300; }
         .social-icons-wrapper { display: flex; gap: 1.5rem; align-items: center; }
         .social-icons-wrapper svg { width: 18px; height: 18px; fill: currentColor; cursor: pointer; transition: color 0.3s; }
@@ -225,6 +225,48 @@
             .shop-filters { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding: 0 0 1rem 0; border-bottom: none; gap: 1.5rem; scrollbar-width: none; }
             .shop-filters::-webkit-scrollbar { display: none; }
             .filter-item { white-space: nowrap; }
+
+            .shop-collection { padding: 4rem 0; overflow: hidden; }
+            .shop-grid { 
+                display: flex; 
+                flex-wrap: nowrap; 
+                overflow-x: auto; 
+                scroll-snap-type: x mandatory; 
+                gap: 1.5rem; 
+                padding: 1rem 12.5vw 2rem 12.5vw; 
+                scroll-padding-inline: 12.5vw;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .shop-grid::-webkit-scrollbar { display: none; }
+            .shop-grid .bestseller-card { 
+                flex: 0 0 75vw; 
+                scroll-snap-align: center; 
+            }
+            /* 1. Shrink Hero Section */
+            /* Note: If your hero uses a different class/id, swap '#heroSection' with it */
+            #heroSection, .shop-hero { 
+                height: 40vh !important;
+                min-height: 350px !important;
+            }
+
+            /* 2. Swipeable Sub-Navbar */
+            /* Note: Swap '.category-nav' with the actual class wrapping your category links */
+            .category-nav { 
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
+                scrollbar-width: none; /* Hides scrollbar in Firefox */
+                gap: 1.5rem; /* Spacing between links */
+                padding: 0 1.5rem 1rem 1.5rem !important; 
+                justify-content: flex-start !important; /* Forces left alignment so it scrolls properly */
+            }
+            
+            /* Hides scrollbar in Chrome/Safari/Edge */
+            .category-nav::-webkit-scrollbar {
+                display: none; 
+            }
         }
         @media (max-width: 600px) { 
             footer { padding: 4rem 1.5rem 6rem 1.5rem; }
@@ -379,8 +421,14 @@
         <div class="footer-bottom">
             <span>&copy; 2026 Formique Official Store. All rights reserved.</span>
             <div class="social-icons-wrapper">
-                <!-- Social SVGs omitted for brevity, use same as index.html -->
+                <!-- Facebook -->
+                <svg viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/></svg>
+                <!-- Twitter / X -->
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                <!-- Instagram -->
                 <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                <!-- TikTok -->
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"></path></svg>
             </div>
         </div>
     </footer>
