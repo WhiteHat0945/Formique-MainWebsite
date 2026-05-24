@@ -129,20 +129,3 @@ function createCardHTML(p) {
 }
 
 window.onload = () => setTimeout(initHome, 300);
-// ==========================================
-// HERO BTN SCROLL HELPER
-// ==========================================
-function scrollToShop() {
-    const target = document.getElementById('shopTarget');
-    if (target) {
-        const navHeight = document.getElementById('navbar').offsetHeight;
-        const topPos = target.getBoundingClientRect().top + window.scrollY - navHeight;
-        window.scrollTo({ top: topPos, behavior: 'smooth' });
-    }
-    
-    // Update Mobile Nav Active State
-    document.querySelectorAll('.m-nav-item').forEach(el => el.classList.remove('active'));
-    const firstNav = document.querySelectorAll('.m-nav-item')[0];
-    if(firstNav) firstNav.classList.add('active');
-}
-
