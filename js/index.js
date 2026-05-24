@@ -2,7 +2,7 @@
 // HOME PAGE SPECIFIC LOGIC (FIREBASE UPDATED)
 // ==========================================
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDnsilhjbCfdJvkqOohw_40F_xD_D97OQo",
@@ -14,7 +14,7 @@ const firebaseConfig = {
     measurementId: "G-NEBDNSBXYN"
 };
 
-// CRITICAL: Only initialize if no app exists; otherwise, grab the existing one
+// This checks if Firebase is already running before trying to start it again!
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 

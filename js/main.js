@@ -2,7 +2,7 @@
 // GLOBAL STORE LOGIC & FIREBASE 
 // ==========================================
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDnsilhjbCfdJvkqOohw_40F_xD_D97OQo",
@@ -14,7 +14,7 @@ const firebaseConfig = {
     measurementId: "G-NEBDNSBXYN"
 };
 
-// CRITICAL: Only initialize if no app exists; otherwise, grab the existing one
+// This checks if Firebase is already running before trying to start it again!
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 
@@ -182,26 +182,32 @@ window.toggleWishlist = function() {
 }
 
 window.updateWishlistUI = function() {
+    const countEl = document.getElementById('wishlistCount');
+    if(countEl) countEl.innerText = window.wishlist.length;
+    
     const container = document.getElementById('wishlistItems');
     if(!container) return;
     
-    // Always use the latest wishlist from storage
-    const currentWishlist = JSON.parse(localStorage.getItem('formique_likes')) || [];
-    
-    if(currentWishlist.length === 0) {
-        container.innerHTML = "<p style='text-align:center; padding: 2rem;'>No saved items yet.</p>";
+    if(window.wishlist.length === 0) {
+        container.innerHTML = "<p style='color:var(--muted); font-size:0.95rem; margin-top:2rem; text-align:center;'>You haven't saved any items yet.</p>";
         return;
     }
-
-    container.innerHTML = currentWishlist.map(id => {
+    container.innerHTML = window.wishlist.map(id => {
         const p = window.productsList.find(item => String(item.id) === String(id));
         if(!p) return ''; 
+        const originalIndex = window.productsList.findIndex(item => String(item.id) === String(id));
         return `
-        <div class="bag-item">
-            <img src="${p.thumbnail || ''}" onclick="window.openProduct(${window.productsList.indexOf(p)})">
-            <div>
-                <p>${p.name}</p>
-                <p>₱${parseFloat(p.price).toLocaleString()}</p>
+        <div class="bag-item" style="align-items: flex-start; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+            <img src="${p.thumbnail || ''}" style="cursor:pointer; width: 90px; aspect-ratio: 3/4; object-fit: cover;" onclick="window.openProduct(${originalIndex}); window.toggleWishlist();">
+            <div style="flex-grow:1; display: flex; flex-direction: column; justify-content: space-between; height: 120px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="cursor:pointer;" onclick="window.openProduct(${originalIndex}); window.toggleWishlist();">
+                        <div style="font-weight: 500; font-size: 0.95rem; margin-bottom: 4px; color: var(--text);">${p.name}</div>
+                        <div style="color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">${p.category}</div>
+                    </div>
+                    <span onclick="window.toggleLike(event, '${p.id}')" style="cursor:pointer; color: var(--muted); font-size: 1.8rem; line-height: 0.8; padding-left: 10px;" title="Remove">&times;</span>
+                </div>
+                <div style="font-weight: 500; font-size: 1.05rem;">₱${parseFloat(p.price).toLocaleString()}</div>
             </div>
         </div>`;
     }).join('');
