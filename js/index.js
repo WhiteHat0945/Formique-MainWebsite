@@ -1,7 +1,7 @@
 // ==========================================
 // HOME PAGE SPECIFIC LOGIC (FIREBASE UPDATED)
 // ==========================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -14,7 +14,8 @@ const firebaseConfig = {
     measurementId: "G-NEBDNSBXYN"
 };
 
-const app = initializeApp(firebaseConfig);
+// This checks if Firebase is already running before trying to start it again!
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 
 let heroImages = [];
@@ -243,4 +244,4 @@ window.scrollToShop = function() {
 }
 
 // Run script safely after slight delay to ensure DOM is ready
-window.onload = () => setTimeout(initHome, 300);
+window.onload = () => setTimeout(initHome, 300);        

@@ -1,8 +1,8 @@
 // ==========================================
 // 1. GLOBAL FIREBASE INITIALIZATION
 // ==========================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDnsilhjbCfdJvkqOohw_40F_xD_D97OQo",
@@ -14,7 +14,8 @@ const firebaseConfig = {
     measurementId: "G-NEBDNSBXYN"
 };
 
-const app = initializeApp(firebaseConfig);
+// This checks if Firebase is already running before trying to start it again!
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 
 // ==========================================
@@ -581,13 +582,14 @@ window.openCheckout = function() {
     document.getElementById('orderForm').onsubmit = async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector('button');
-        btn.innerText = "Processing & Sending Email...";
+        btn.innerText = "Processing Secure Purchase...";
         btn.disabled = true;
 
         const customerEmail = document.getElementById('oEmail').value;
         const customerName = document.getElementById('oName').value;
 
         try {
+            // 1. Save the new order to the database
             const docRef = await addDoc(collection(db, 'orders'), {
                 customer_name: customerName,
                 customer_email: customerEmail,
@@ -599,6 +601,28 @@ window.openCheckout = function() {
                 created_at: Date.now() 
             });
 
+            // 2. REACH BACK AND DEDUCT INVENTORY
+            for (const item of window.cart) {
+                // Determine if they bought 1 or multiple of the same item
+                const deductAmount = item.qty ? parseInt(item.qty) : 1; 
+                const productRef = doc(db, "products", item.id);
+                
+                try {
+                    const snap = await getDoc(productRef);
+                    if (snap.exists()) {
+                        // Convert the string to a number, subtract, and prevent negative stock
+                        const currentStock = parseInt(snap.data().stock) || 0;
+                        let newStock = currentStock - deductAmount;
+                        if (newStock < 0) newStock = 0;
+                        
+                        await updateDoc(productRef, { stock: newStock });
+                    }
+                } catch (stockError) {
+                    console.error("Failed to deduct stock for", item.name, stockError);
+                }
+            }
+
+            // 3. Trigger Confirmation Email via Vercel
             const orderId = docRef.id;
             const shortOrderId = orderId.substring(0,8).toUpperCase();
             
@@ -618,6 +642,7 @@ window.openCheckout = function() {
             
             if (!emailResponse.ok) throw new Error("Backend failed to send email");
             
+            // 4. Show Success Screen
             document.getElementById('checkoutContent').innerHTML = `
                 <div class="checkout-container" style="text-align: center; padding: 4rem 0;">
                     <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem;">Action Required</h2>
@@ -628,12 +653,14 @@ window.openCheckout = function() {
                     <button class="btn-primary btn-white" style="border: 1px solid var(--border);" onclick="window.closeAll(); location.reload();">Return to Store</button>
                 </div>
             `;
+            
+            // Empty the cart
             window.cart = []; 
             localStorage.removeItem('elites_bag');
             window.updateBagUI();
 
         } catch (error) {
-            console.error("Firebase/Email Error:", error);
+            console.error("Firebase Error:", error);
             alert("Order processing failed. Please check your connection.");
             btn.innerText = "Complete Secure Purchase";
             btn.disabled = false;
