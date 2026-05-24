@@ -1,5 +1,5 @@
 // ==========================================
-// HOME PAGE - FIREBASE INTEGRATION
+// HOME PAGE - FIREBASE INTEGRATION (FIXED)
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
@@ -23,95 +23,129 @@ let slideInterval;
 
 async function initHome() {
     try {
-        // 1. Fetch CMS
+        // 1. Fetch CMS Data (Announcement & Hero Details)
         const cmsDoc = await getDoc(doc(db, "cms", "storefront"));
         if (cmsDoc.exists()) {
-            const cms = cmsDoc.data();
+            const c = cmsDoc.data();
             
-            // Announcement
-            if(cms.announcement_active) {
+            // Setup Announcement Bar
+            if(c.announcement_active) {
                 const bar = document.getElementById('announcementBar');
-                if (bar) { bar.innerText = cms.announcement_text; bar.style.display = 'block'; }
-            }
-
-            // Hero
-            if(cms.hero_images && cms.hero_images.length > 0) {
-                heroImages = cms.hero_images;
-                const heroOverlay = document.querySelector('.hero-overlay');
-                if (heroOverlay) {
-                    heroOverlay.innerHTML = `
-                        <h1 class="hero-title">${cms.hero_title || 'Fall Collection 2026'}</h1>
-                        <p class="hero-subtitle">${cms.hero_subtitle || 'Discover the new standard of modern elegance.'}</p>
-                        <button class="btn-primary" onclick="window.location.href='shop.html'">${cms.hero_button_text || 'Shop the Collection'}</button>
-                    `;
+                if (bar) {
+                    bar.innerText = c.announcement_text;
+                    bar.style.display = 'block';
                 }
-                renderHero();
-                startHeroSlider();
             }
+            
+            // Setup Hero Section Content (Using EXACT IDs from your index.html)
+            const titleEl = document.getElementById('heroTitle');
+            const subEl = document.getElementById('heroSub');
+            const btnEl = document.getElementById('heroBtn');
+            
+            if (titleEl) titleEl.innerText = c.hero_title || "Formique";
+            if (subEl) subEl.innerText = c.hero_subtitle || c.hero_sub || "Elevating Modern Essentials";
+            
+            if(btnEl && (c.hero_button_text || c.hero_btn)) {
+                btnEl.innerText = c.hero_button_text || c.hero_btn;
+                btnEl.style.display = 'inline-block';
+            }
+            
+            // Hero Images Processing
+            if (c.hero_images && c.hero_images.length > 0) {
+                heroImages = c.hero_images;
+            } else if (c.hero_image_url) {
+                try { 
+                    heroImages = c.hero_image_url.startsWith('[') ? JSON.parse(c.hero_image_url) : [c.hero_image_url]; 
+                } catch(e) { 
+                    heroImages = [c.hero_image_url]; 
+                }
+            } else {
+                // Fallbacks if database has no image
+                heroImages = [
+                    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2000",
+                    "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2000"
+                ];
+            }
+            buildHeroSlider();
         }
 
-        // 2. Fetch Products
+        // 2. Fetch Products for Home Grids
         const querySnapshot = await getDocs(collection(db, "products"));
         window.productsList = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         })).sort((a,b) => (b.created_at || 0) - (a.created_at || 0));
 
-        // 3. Render
+        // 3. Trigger global UI and render grids
+        if (typeof window.populateMegaMenu === 'function') window.populateMegaMenu();
         renderHomeGrids();
+        
+        if (typeof window.updateBagUI === 'function') window.updateBagUI();
+        if (typeof window.updateWishlistUI === 'function') window.updateWishlistUI();
 
-    } catch (err) {
-        console.error("Error initializing home page:", err);
+    } catch (error) {
+        console.error("Error initializing home page:", error);
     }
 }
 
-function renderHero() {
-    const heroSection = document.getElementById('heroSection');
-    if(!heroSection) return;
-    heroSection.style.backgroundImage = `url('${heroImages[currentSlide]}')`;
-    heroSection.style.backgroundSize = "cover";
-    heroSection.style.backgroundPosition = "center";
-}
-
-function startHeroSlider() {
-    if(heroImages.length <= 1) return;
-    if(slideInterval) clearInterval(slideInterval);
-    slideInterval = setInterval(() => {
-        currentSlide = (currentSlide + 1) % heroImages.length;
-        renderHero();
-    }, 5000);
+function buildHeroSlider() {
+    // Looks specifically for <div id="heroBg">
+    const heroBg = document.getElementById('heroBg');
+    if(!heroBg || heroImages.length === 0) return;
+    
+    heroBg.style.backgroundImage = `url('${heroImages[0]}')`;
+    
+    if(heroImages.length > 1) {
+        if(slideInterval) clearInterval(slideInterval);
+        slideInterval = setInterval(() => {
+            currentSlide = (currentSlide + 1) % heroImages.length;
+            heroBg.style.backgroundImage = `url('${heroImages[currentSlide]}')`;
+        }, 5000);
+    }
 }
 
 function renderHomeGrids() {
-    const bestsellerGrid = document.getElementById('bestsellerGrid');
-    const featuredGrid = document.getElementById('featuredGrid');
-    const newArrivalsGrid = document.getElementById('newArrivalsGrid');
-
-    if (!bestsellerGrid && !featuredGrid && !newArrivalsGrid) return;
-
-    let bestsellers = window.productsList.filter(p => p.bestseller === true || String(p.bestseller) === "true");
-    if (bestsellers.length === 0) bestsellers = window.productsList.slice(0, 4);
-
-    const cardsHTML = window.productsList.slice(0, 4).map(p => createCardHTML(p)).join('');
+    const newArrivals = window.productsList.slice(0, 4);
     
-    if (bestsellerGrid) bestsellerGrid.innerHTML = bestsellers.map(p => createCardHTML(p)).join('');
-    if (featuredGrid) featuredGrid.innerHTML = cardsHTML;
-    if (newArrivalsGrid) newArrivalsGrid.innerHTML = cardsHTML;
+    // Find items specifically marked as bestseller, otherwise fallback to top 8
+    let bestsellers = window.productsList.filter(p => p.bestseller === true || String(p.bestseller) === "true");
+    if(bestsellers.length === 0) {
+        bestsellers = window.productsList.slice(0, 8); 
+    }
+    
+    const renderCards = (containerId, items) => {
+        const container = document.getElementById(containerId);
+        if(!container) return; // Silent fail if the ID doesn't exist on the page
+        
+        container.innerHTML = items.map(p => {
+            // Find global index for the shared openProduct function in main.js
+            const originalIndex = window.productsList.findIndex(item => item.id === p.id);
+            const isLiked = window.wishlist.some(id => String(id) === String(p.id)) ? 'liked' : '';
+            const stockStr = String(p.stock).toLowerCase().trim();
+            const isOutOfStock = stockStr === '0' || stockStr === 'out of stock' || stockStr === 'none' || stockStr === 'null' || stockStr === 'undefined';
+            
+            // Render using your EXACT original HTML structure and class names
+            return `
+            <div class="product-card ${isOutOfStock ? 'out-of-stock-card' : ''}" onclick="if(typeof window.openProduct === 'function') window.openProduct(${originalIndex})">
+                <div class="product-image">
+                    ${isOutOfStock ? `<div class="out-of-stock-label">Out of Stock</div>` : ''}
+                    <button class="btn-like ${isLiked}" data-id="${p.id}" onclick="if(typeof window.toggleLike === 'function') window.toggleLike(event, '${p.id}')" style="${isOutOfStock ? 'z-index: 20; pointer-events: auto;' : ''}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                    <img src="${p.thumbnail || ''}" alt="${p.name}">
+                </div>
+                <div class="product-info">
+                    <span class="product-name">${p.name}</span>
+                    <span class="product-price">₱${parseFloat(p.price || 0).toLocaleString()}</span>
+                </div>
+            </div>`;
+        }).join('');
+    };
+
+    // These IDs now perfectly match your index.html
+    renderCards('newArrivalsGrid', newArrivals);
+    renderCards('featuredGrid', bestsellers);
 }
 
-function createCardHTML(p) {
-    const originalIndex = window.productsList.findIndex(item => item.id === p.id);
-    return `
-    <div class="bestseller-card" onclick="if(typeof window.openProduct === 'function') window.openProduct(${originalIndex})">
-        <div class="bestseller-image" style="aspect-ratio: 3/4; overflow:hidden;">
-            <img src="${p.thumbnail || ''}" style="width: 100%; height: 100%; object-fit: cover;">
-        </div>
-        <div class="bestseller-info">
-            <span class="bestseller-name">${p.name}</span>
-            <span class="bestseller-price">₱${parseFloat(p.price || 0).toLocaleString()}</span>
-        </div>
-    </div>`;
-}
-
-// Ensure init runs when DOM is fully loaded
+// Ensures the page is completely loaded before attempting to fill the grids
 document.addEventListener('DOMContentLoaded', initHome);
