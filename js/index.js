@@ -1,5 +1,5 @@
 // ==========================================
-// HOME PAGE SPECIFIC LOGIC
+// HOME PAGE - FIREBASE INTEGRATION
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
@@ -23,19 +23,18 @@ let slideInterval;
 
 async function initHome() {
     try {
-        // 1. Fetch CMS (Announcement & Hero Details)
+        // 1. Fetch CMS
         const cmsDoc = await getDoc(doc(db, "cms", "storefront"));
         if (cmsDoc.exists()) {
             const cms = cmsDoc.data();
             
+            // Announcement
             if(cms.announcement_active) {
                 const bar = document.getElementById('announcementBar');
-                if (bar) {
-                    bar.innerText = cms.announcement_text;
-                    bar.style.display = 'block';
-                }
+                if (bar) { bar.innerText = cms.announcement_text; bar.style.display = 'block'; }
             }
 
+            // Hero
             if(cms.hero_images && cms.hero_images.length > 0) {
                 heroImages = cms.hero_images;
                 const heroOverlay = document.querySelector('.hero-overlay');
@@ -51,20 +50,15 @@ async function initHome() {
             }
         }
 
-        // 2. Fetch Live Products
+        // 2. Fetch Products
         const querySnapshot = await getDocs(collection(db, "products"));
         window.productsList = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         })).sort((a,b) => (b.created_at || 0) - (a.created_at || 0));
 
-        // 3. Render Homepage Features
+        // 3. Render
         renderHomeGrids();
-
-        // 4. Fire Global Updates (Connecting to main.js UI)
-        if (typeof window.populateMegaMenu === 'function') window.populateMegaMenu();
-        if (typeof window.updateBagUI === 'function') window.updateBagUI();
-        if (typeof window.updateWishlistUI === 'function') window.updateWishlistUI();
 
     } catch (err) {
         console.error("Error initializing home page:", err);
@@ -73,12 +67,15 @@ async function initHome() {
 
 function renderHero() {
     const heroSection = document.getElementById('heroSection');
-    if(!heroSection || heroImages.length === 0) return;
+    if(!heroSection) return;
     heroSection.style.backgroundImage = `url('${heroImages[currentSlide]}')`;
+    heroSection.style.backgroundSize = "cover";
+    heroSection.style.backgroundPosition = "center";
 }
 
 function startHeroSlider() {
     if(heroImages.length <= 1) return;
+    if(slideInterval) clearInterval(slideInterval);
     slideInterval = setInterval(() => {
         currentSlide = (currentSlide + 1) % heroImages.length;
         renderHero();
@@ -90,42 +87,31 @@ function renderHomeGrids() {
     const featuredGrid = document.getElementById('featuredGrid');
     const newArrivalsGrid = document.getElementById('newArrivalsGrid');
 
-    // Filter for bestsellers, fallback to latest products
-    let bestsellers = window.productsList.filter(p => String(p.bestseller) === "true" || p.bestseller === true);
+    if (!bestsellerGrid && !featuredGrid && !newArrivalsGrid) return;
+
+    let bestsellers = window.productsList.filter(p => p.bestseller === true || String(p.bestseller) === "true");
     if (bestsellers.length === 0) bestsellers = window.productsList.slice(0, 4);
 
-    const newArrivals = window.productsList.slice(0, 4);
-
+    const cardsHTML = window.productsList.slice(0, 4).map(p => createCardHTML(p)).join('');
+    
     if (bestsellerGrid) bestsellerGrid.innerHTML = bestsellers.map(p => createCardHTML(p)).join('');
-    if (featuredGrid) featuredGrid.innerHTML = bestsellers.map(p => createCardHTML(p)).join('');
-    if (newArrivalsGrid) newArrivalsGrid.innerHTML = newArrivals.map(p => createCardHTML(p)).join('');
+    if (featuredGrid) featuredGrid.innerHTML = cardsHTML;
+    if (newArrivalsGrid) newArrivalsGrid.innerHTML = cardsHTML;
 }
 
 function createCardHTML(p) {
     const originalIndex = window.productsList.findIndex(item => item.id === p.id);
-    const wishlist = JSON.parse(localStorage.getItem('formique_likes')) || [];
-    const isLiked = wishlist.some(id => String(id) === String(p.id)) ? 'liked' : '';
-    const stockStr = String(p.stock).toLowerCase().trim();
-    const isOutOfStock = stockStr === '0' || stockStr === 'out of stock' || stockStr === 'none' || stockStr === 'null' || stockStr === 'undefined';
-
     return `
-    <div class="bestseller-card ${isOutOfStock ? 'out-of-stock-card' : ''}" onclick="if(typeof window.openProduct === 'function') window.openProduct(${originalIndex})">
-        <div class="bestseller-image" style="aspect-ratio: 3/4;">
-            ${isOutOfStock ? `<div class="out-of-stock-label">Out of Stock</div>` : ''}
-            <button class="btn-like ${isLiked}" data-id="${p.id}" onclick="if(typeof window.toggleLike === 'function') window.toggleLike(event, '${p.id}')" style="${isOutOfStock ? 'z-index: 20; pointer-events: auto;' : ''}">
-                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-            </button>
+    <div class="bestseller-card" onclick="if(typeof window.openProduct === 'function') window.openProduct(${originalIndex})">
+        <div class="bestseller-image" style="aspect-ratio: 3/4; overflow:hidden;">
             <img src="${p.thumbnail || ''}" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
         <div class="bestseller-info">
-            <div class="bestseller-text">
-                <span class="bestseller-name">${p.name}</span>
-                <span class="bestseller-cat">${p.category}</span>
-            </div>
-            <span class="bestseller-price">₱${parseFloat(p.price).toLocaleString()}</span>
+            <span class="bestseller-name">${p.name}</span>
+            <span class="bestseller-price">₱${parseFloat(p.price || 0).toLocaleString()}</span>
         </div>
-    </div>
-    `;
+    </div>`;
 }
 
-window.onload = () => setTimeout(initHome, 300);
+// Ensure init runs when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initHome);
