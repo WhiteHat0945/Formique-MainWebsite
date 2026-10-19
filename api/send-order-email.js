@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         sender: { 
           name: "Formique Official", 
-          email: "formiquestore@gmail.com" 
+          email: "digiwise.pasoa.pupt@gmail.com" 
         },
         to: [{ email: to_email, name: to_name }],
         subject: `Confirm Your Formique Order #${order_id}`,
